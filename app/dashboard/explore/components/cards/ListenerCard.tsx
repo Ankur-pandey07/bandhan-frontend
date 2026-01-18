@@ -1,33 +1,37 @@
 type ListenerCardProps = {
+   id: string;
   name: string;
   badge: string;
   avatar: string;
   onSelect: () => void;
+  selected?: boolean;
 };
-
 export default function ListenerCard({
+  id,
   name,
   badge,
   avatar,
+  selected,
   onSelect,
-}: ListenerCardProps) {
+}: any) {
   return (
     <div
-      className="
-        w-full
+      onClick={onSelect}
+      className={`
+        cursor-pointer
         rounded-2xl
         border border-white/30
-        bg-white/10
         p-4
-
-        flex flex-col
-        gap-3
-
-        md:flex-row
-        md:items-center
-        md:justify-between
-      "
+        transition-all duration-300
+        ${
+          selected
+            ? "scale-95 opacity-0"
+            : "hover:scale-[1.03]"
+        }
+      `}
     >
+
+
       {/* LEFT */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl shrink-0">
