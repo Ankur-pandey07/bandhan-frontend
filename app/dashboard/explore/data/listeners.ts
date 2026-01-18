@@ -5,6 +5,7 @@ export const LISTENERS = [
     badge: "Calm Listener",
     avatar: "🧘‍♂️",
     isListening: true,
+    moods: ["Upset", "Overthinking"],
   },
   {
     id: "l2",
@@ -12,13 +13,15 @@ export const LISTENERS = [
     badge: "Good Listener",
     avatar: "🌸",
     isListening: true,
+    moods: ["Lonely", "Happy"],
   },
   {
     id: "l3",
     name: "Rohan",
     badge: "Verified Listener",
     avatar: "🛡️",
-    isListening: false, // 🔕 offline
+    isListening: false,
+    moods: ["Overthinking", "Upset"],
   },
   {
     id: "l4",
@@ -26,6 +29,7 @@ export const LISTENERS = [
     badge: "Empathetic",
     avatar: "💙",
     isListening: true,
+    moods: ["Lonely", "Upset"],
   },
   {
     id: "l5",
@@ -33,5 +37,6 @@ export const LISTENERS = [
     badge: "Active Listener",
     avatar: "🎧",
     isListening: true,
+    moods: ["Calm", "Happy"],
   },
 ];
