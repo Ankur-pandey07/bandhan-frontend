@@ -1,5 +1,3 @@
-"use client";
-
 type ListenerCardProps = {
   name: string;
   badge: string;
@@ -14,22 +12,57 @@ export default function ListenerCard({
   onSelect,
 }: ListenerCardProps) {
   return (
-    <button
-      onClick={onSelect}
-      className="w-full flex items-center gap-4 p-4 rounded-2xl border hover:bg-gray-50 transition"
+    <div
+      className="
+        w-full
+        rounded-2xl
+        border border-white/30
+        bg-white/10
+        p-4
+
+        flex flex-col
+        gap-3
+
+        md:flex-row
+        md:items-center
+        md:justify-between
+      "
     >
-      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
-        {avatar}
+      {/* LEFT */}
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl shrink-0">
+          {avatar}
+        </div>
+
+        <div>
+          <p className="text-white font-semibold leading-tight">
+            {name}
+          </p>
+          <p className="text-sm text-white/80">
+            {badge}
+          </p>
+        </div>
       </div>
 
-      <div className="flex-1 text-left">
-        <p className="font-semibold text-gray-900">{name}</p>
-        <p className="text-sm text-gray-500">{badge}</p>
-      </div>
+      {/* RIGHT */}
+      <button
+        onClick={onSelect}
+        className="
+          w-full
+          md:w-auto
 
-      <span className="text-sm text-[#B11226] font-medium">
+          mt-2 md:mt-0
+          px-4 py-2
+          rounded-xl
+
+          bg-white/20
+          text-white text-sm font-medium
+          hover:bg-white/30
+          transition
+        "
+      >
         Select
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }

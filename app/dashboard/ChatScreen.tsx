@@ -192,7 +192,7 @@ const seconds = callTime % 60;
 const playVoice = (url: string) => {
   const audio = new Audio(url);
   audio.play();
-};
+}
 
   const sendMessage = () => {
     if (!input.trim() || isLocked) return;

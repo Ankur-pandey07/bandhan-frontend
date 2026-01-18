@@ -9,3 +9,4 @@ export default function SystemMessage({ text }: { text: string }) {
     </div>
   );
 }
+

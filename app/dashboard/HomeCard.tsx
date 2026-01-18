@@ -205,7 +205,7 @@ const saveBlockedUser = (user: any) => {
 
   return (
     <section className="w-full h-full flex justify-center">
-      <div className="w-full max-w-md px-4">
+     <div className="w-full px-4 lg:max-w-md lg:mx-auto">
         <div className="absolute inset-0 scale-[0.96] translate-y-2 bg-black/20 rounded-2xl" />
 <audio ref={audioRef} src="/sounds/swipe.mp3" preload="auto" />
 <audio ref={likeAudioRef} src="/sounds/like.mp3" preload="auto" />

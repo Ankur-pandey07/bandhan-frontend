@@ -2,124 +2,54 @@
 
 import { useState } from "react";
 import ExploreHeader from "./components/ExploreHeader";
-import Section from "./components/Section";
-import MoodCard from "./components/cards/MoodCard";
-import MoodModal from "./components/modals/MoodModal";
-import { MOODS } from "./data/moods";
-import ListenerCard from "./components/cards/ListenerCard";
-import { LISTENERS } from "./data/listeners";
-import { useEffect } from "react";
+import MoodsPage from "./moods/page";
 
 export default function ExplorePage() {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [showLoading, setShowLoading] = useState(false);
-const [showListeners, setShowListeners] = useState(false);
-const handleSubmit = () => {
-  // ✅ CLOSE MOOD MODAL FIRST
-  setSelectedMood(null);
+  const [openMoods, setOpenMoods] = useState(false);
 
-  setShowLoading(true);
-
-  setTimeout(() => {
-    setShowLoading(false);
-    setShowListeners(true);
-  }, 1500);
-};
-useEffect(() => {
-  const handleTabChange = (e: any) => {
-    if (e.detail !== "explore") {
-      // 🔥 FORCE CLEANUP
-      setSelectedMood(null);
-      setShowLoading(false);
-      setShowListeners(false);
-    }
-  };
-
-  window.addEventListener("dashboard-tab-change", handleTabChange);
-
-  return () => {
-    window.removeEventListener("dashboard-tab-change", handleTabChange);
-  };
-}, []);
-
-
+  // 👇 agar moods open hai
+  if (openMoods) {
+    return <MoodsPage />;
+  }
 
   return (
-    <div className="min-h-screen bg-black pb-24">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-b from-[#ff6a6a] via-[#ff5a5f] to-[#e54848] pb-24">
       <ExploreHeader />
 
-      {/* MOOD SECTION */}
-      <Section
-        title="Aaj aap kaisa mehsoos kar rahe hain?"
-        subtitle="Jo mann me hai, keh sakte ho"
-      >
-        <div className="grid grid-cols-2 gap-4">
-          {MOODS.map((mood) => (
-            <MoodCard
-              key={mood.id}
-              label={mood.label}
-              emoji={mood.emoji}
-              bg={mood.bg}
-              onClick={() => setSelectedMood(mood.label)}
-            />
-          ))}
+      <div className="px-4 sm:px-6 lg:px-8 mt-6 max-w-4xl">
+        {/* MOODS CARD */}
+        <div
+          onClick={() => setOpenMoods(true)}
+          className="
+            cursor-pointer
+            w-full
+            rounded-3xl
+            p-6
+            bg-gradient-to-br from-[#2b2b2b] to-[#111]
+            text-white
+            transition
+            active:scale-[0.97]
+          "
+        >
+          <h3 className="text-xl font-semibold">Moods</h3>
+
+          <p className="mt-1 text-sm text-gray-300">
+            Aaj aap kaisa mehsoos kar rahe hain?
+          </p>
+
+          <div className="mt-4 flex gap-2 text-lg">
+            <span>😔</span>
+            <span>😌</span>
+            <span>😊</span>
+            <span>🤍</span>
+            <span>🌿</span>
+          </div>
+
+          <p className="mt-4 text-xs text-gray-400">
+            Tap to explore →
+          </p>
         </div>
-      </Section>
-
-      {/* MODAL */}
-      {selectedMood && (
-        <MoodModal
-          mood={selectedMood}
-          onClose={() => setSelectedMood(null)}
-          
-          onSubmit={handleSubmit}
-        />
-      )}
-      
-{showListeners && (
-  <Section
-    title="Aapke liye sahi listeners"
-    subtitle="Aap jis se comfortable ho, unhe chuniye"
-  >
-    <div className="space-y-3">
-      {LISTENERS.map((listener) => (
-        <ListenerCard
-          key={listener.id}
-          name={listener.name}
-          badge={listener.badge}
-          avatar={listener.avatar}
-
-         onSelect={() => {
-  localStorage.setItem(
-    "activeListenerSession",
-    JSON.stringify({
-      listenerId: listener.id,
-      listenerName: listener.name,
-      mood: selectedMood,
-      startedAt: Date.now(),
-    })
-  );
-setShowListeners(false);
-  setShowLoading(false);
-  setSelectedMood(null);
-  // 🔑 trigger auto switch to chats
-  window.dispatchEvent(new Event("listener-selected"));
-}}
-
-
-        />
-      ))}
-    </div>
-  </Section>
-)}
-
-      {/* LOADING TEXT */}
-      {showLoading && (
-        <p className="text-center text-gray-400 mt-8">
-          Hum aapke liye sahi listener dhoondh rahe hain.
-        </p>
-      )}
+      </div>
     </div>
   );
 }

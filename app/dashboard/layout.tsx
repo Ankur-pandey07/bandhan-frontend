@@ -65,9 +65,14 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+   <div className="min-h-screen bg-white overflow-x-hidden">
+
       {/* ================= SIDEBAR (DESKTOP ONLY) ================= */}
-      <div className="hidden lg:block w-64 fixed left-0 top-0 h-screen bg-white z-50 border-r">
+   <div className="hidden lg:block w-64 fixed left-0 top-0 h-screen bg-white z-50 border-r">
+
+
+
+
         <nav className="p-6 space-y-2">
           
           <button
@@ -93,13 +98,14 @@ useEffect(() => {
           ))}
         </nav>
       </div>
-      
 
       {/* ================= MAIN CONTENT ================= */}
-      <div className="flex min-h-screen lg:ml-64">
+    <div className="flex min-h-screen overflow-x-hidden lg:ml-64">
+
         {/* ================= TOP BAR (MOBILE) ================= */}
         <header className="lg:hidden sticky top-0 z-30 bg-white border-b">
-          <div className="max-w-md mx-auto px-4 py-3">
+  <div className="w-full px-4 py-3">
+
             <button
               onClick={handleBrandClick}
               className="flex items-center gap-2 text-lg font-bold text-[#B11226]"
@@ -111,7 +117,8 @@ useEffect(() => {
         </header>
 
         {/* ================= MAIN ================= */}
-        <main className="flex-1 px-4 sm:px-6 py-6 pb-24 lg:pb-6">
+       <main className="flex-1 w-full min-w-0 px-0 sm:px-6 py-6 pb-24 lg:pb-6">
+
           {activeTab === "home" && <HomeCard />}
 
           {activeTab === "explore" && <ExplorePage />}
@@ -132,8 +139,9 @@ useEffect(() => {
       </div>
 
       {/* ================= BOTTOM NAV (MOBILE ONLY) ================= */}
-      <nav className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t z-50 px-4 py-2">
-        <div className="max-w-md mx-auto flex justify-between items-center">
+     <nav className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t z-50 px-4 py-2">
+  <div className="w-full flex justify-between items-center">
+
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}

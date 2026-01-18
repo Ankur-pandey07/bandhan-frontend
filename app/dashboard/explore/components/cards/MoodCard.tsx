@@ -14,7 +14,22 @@ export default function MoodCard({
   return (
     <button
       onClick={onClick}
-      className={`h-32 rounded-2xl ${bg} text-white flex flex-col items-center justify-center gap-2 active:scale-95 transition`}
+      className={`
+        w-full
+        h-32
+        rounded-2xl
+        ${bg}
+        text-white
+        flex
+        flex-col
+        items-center
+        justify-center
+        gap-2
+        shadow-lg
+        transition
+        hover:scale-[1.03]
+        active:scale-95
+      `}
     >
       <span className="text-3xl">{emoji}</span>
       <span className="text-sm font-semibold">{label}</span>

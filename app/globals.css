@@ -125,3 +125,20 @@ body {
   content: "";
   animation: typingDots 1.5s infinite;
 }
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-message {
+  animation: messageIn 0.25s ease-out;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
