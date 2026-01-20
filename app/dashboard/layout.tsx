@@ -6,6 +6,8 @@ import ConnectionsTab from "./ConnectionsTab";
 import ProfileSettings from "../../components/Profile/ProfileSettings";
 import ExplorePage from "./explore/page";
 import ChatsPage from "./chats/page";
+import ProfileScreen from "./Profile/ProfileScreen";
+
 
 /* ================= TYPES ================= */
 type Tab =
@@ -117,7 +119,7 @@ useEffect(() => {
         </header>
 
         {/* ================= MAIN ================= */}
-       <main className="flex-1 w-full min-w-0 px-0 sm:px-6 py-6 pb-24 lg:pb-6">
+     <main className="flex-1 w-full min-w-0 px-0 sm:px-6 py-6 pb-24 lg:pb-6 bg-[#0e0e0e] text-white">
 
           {activeTab === "home" && <HomeCard />}
 
@@ -134,7 +136,8 @@ useEffect(() => {
           {activeTab === "chats" && <ChatsPage />}
 
 
-          {activeTab === "profile" && <ProfileSettings />}
+         {activeTab === "profile" && <ProfileScreen />}
+
         </main>
       </div>
 
