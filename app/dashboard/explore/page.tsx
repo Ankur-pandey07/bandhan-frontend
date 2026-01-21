@@ -64,10 +64,9 @@ export default function ExplorePage() {
           </p>
 
           <SoulVerseCard
-            onOpen={() =>
-              router.push("/dashboard/explore/soulverse")
-            }
-          />
+  onOpen={() => router.push("/soulverse")}
+/>
+
         </div>
       </div>
     </div>

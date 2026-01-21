@@ -7,6 +7,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<string[]>([]);
   const [text, setText] = useState("");
 
+  
   const sendMessage = () => {
     if (!text) return;
     setMessages([...messages, text]);
