@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import ExploreHeader from "./components/ExploreHeader";
 import MoodsPage from "./moods/page";
+import SoulVerseCard from "./components/SoulVerseCard";
 
 export default function ExplorePage() {
   const [openMoods, setOpenMoods] = useState(false);
+  const router = useRouter();
 
   // 👇 agar moods open hai
   if (openMoods) {
@@ -17,7 +20,7 @@ export default function ExplorePage() {
       <ExploreHeader />
 
       <div className="px-4 sm:px-6 lg:px-8 mt-6 max-w-4xl">
-        {/* MOODS CARD */}
+        {/* ================= MOODS CARD (UNCHANGED) ================= */}
         <div
           onClick={() => setOpenMoods(true)}
           className="
@@ -48,6 +51,22 @@ export default function ExplorePage() {
           <p className="mt-4 text-xs text-gray-400">
             Tap to explore →
           </p>
+        </div>
+
+        {/* ================= SOULVERSE CARD (SECOND CARD) ================= */}
+        <div className="mt-10">
+          <h3 className="text-white text-xl font-semibold mb-1">
+            SoulVerse
+          </h3>
+
+          <p className="text-white/80 text-sm mb-4">
+            Personal relationship guidance 
+          </p>
+
+          <SoulVerseCard
+  onOpen={() => router.push("/soulverse")}
+/>
+
         </div>
       </div>
     </div>
