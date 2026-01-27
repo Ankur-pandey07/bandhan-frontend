@@ -23,20 +23,28 @@ export type Memory = {
   stage: Stage;
   emotionalIntensity: EmotionalIntensity;
   longTermNotes: Theme[];
-  silenceCount: number; // 👈 NEW
+  silenceCount: number;
 };
 
-/* ================= DETECTION ================= */
+/* ================= HELPERS ================= */
+
+function isMinimalResponse(text: string) {
+  return ["haan", "hmm", "ok", "okay", "yes", "acha"].includes(text);
+}
+
+/* ================= SILENCE ================= */
+
 function silenceReply(level: SilenceLevel) {
   if (level === "short") {
     return "Main yahin hoon. Jab ready ho, continue kar sakte ho.";
   }
-
   return (
     "Kabhi-kabhi chup rehna bhi baat ka hissa hota hai.\n" +
     "Agar shabd nahi aa rahe, hum bas yahin ruk sakte hain."
   );
 }
+
+/* ================= FOLLOW-UP ================= */
 
 function followUpQuestion(theme: Theme) {
   switch (theme) {
@@ -53,64 +61,65 @@ function followUpQuestion(theme: Theme) {
   }
 }
 
+/* ================= DETECTION ================= */
 
 function detectTheme(text: string): Theme {
-  const t = text.toLowerCase();
-
-  if (t.includes("fight") || t.includes("ladai")) return "conflict";
-  if (t.includes("trust") || t.includes("bharosa")) return "trust";
-  if (t.includes("busy") || t.includes("distance") || t.includes("door"))
+  if (text.includes("fight") || text.includes("ladai")) return "conflict";
+  if (text.includes("trust") || text.includes("bharosa")) return "trust";
+  if (text.includes("busy") || text.includes("distance") || text.includes("door"))
     return "distance";
-  if (t.includes("sad") || t.includes("hurt") || t.includes("alone"))
+  if (text.includes("sad") || text.includes("hurt") || text.includes("alone"))
     return "emotion";
-  if (t.includes("talk") || t.includes("baat") || t.includes("samajh"))
+  if (text.includes("talk") || text.includes("baat") || text.includes("samajh"))
     return "communication";
-
   return "unknown";
 }
 
 function detectIntensity(text: string): EmotionalIntensity {
-  const t = text.toLowerCase();
-
   if (
-    t.includes("bahut") ||
-    t.includes("zyada") ||
-    t.includes("broken") ||
-    t.includes("hurt")
+    text.includes("bahut") ||
+    text.includes("zyada") ||
+    text.includes("broken") ||
+    text.includes("hurt")
   )
     return "high";
 
-  if (t.includes("confused") || t.includes("samajh"))
+  if (text.includes("confused") || text.includes("samajh"))
     return "medium";
 
   return "low";
 }
 
-/* ================= STAGE LOGIC ================= */
+/* ================= STAGE ================= */
 
 function decideStage(
   memory: Memory,
   repeated: number,
   cleaned: string
 ): Stage {
+  // greeting only once
   if (
-    cleaned.length <= 6 ||
+    memory.stage === "greeting" &&
+    cleaned.length <= 6 &&
     ["hi", "hello", "hey", "hii"].includes(cleaned)
   ) {
     return "greeting";
   }
+
+  // stage locking 🔒
+  if (memory.stage === "guiding") return "guiding";
 
   if (repeated === 0) return "listening";
   if (repeated === 1) return "reflecting";
   return "guiding";
 }
 
-/* ================= THERAPIST RESPONSES ================= */
+/* ================= THERAPIST VOICE ================= */
 
 function listeningReply(intensity: EmotionalIntensity) {
   return intensity === "high"
     ? "Lagta hai ye thoda heavy feel ho raha hai. Aaram se, jab ready ho, batao."
-    : "Hmm… batao, kya chal raha hai?";
+    : "Hmm… main sun raha hoon.";
 }
 
 function reflectingReply(theme: Theme) {
@@ -133,26 +142,26 @@ function guidingReply(theme: Theme) {
     case "communication":
       return (
         "Agar aap comfortable ho,\n" +
-        "to hum ek chhota sa sentence try kar sakte hain:\n\n" +
+        "to ek chhota sa sentence try kar sakte ho:\n\n" +
         "“Mujhe bas thoda clearly samjha jaana hai.”"
       );
 
     case "emotion":
       return (
-        "Comfort ek emotional need hoti hai.\n" +
-        "Shayad pehla step ye samajhna ho ki aap yahan unsafe kyun feel kar rahe ho."
+        "Comfort aur safety emotional needs hoti hain.\n" +
+        "Pehla step ye samajhna ho sakta hai ki aap yahan unsafe kyun feel kar rahe ho."
       );
 
     case "distance":
       return (
-        "Aap directly pooch sakte ho — bina blame ke:\n" +
-        "“Kya hum thoda intentional time nikal sakte hain?”"
+        "Distance kabhi-kabhi time se nahi, priority se feel hota hai.\n" +
+        "Aap pooch sakte ho:\n“Hum thoda intentional time nikal sakte hain?”"
       );
 
     default:
       return (
         "Lagta hai koi need baar-baar unmet reh rahi hai.\n" +
-        "Agar chaaho, hum use words me frame kar sakte hain."
+        "Agar chaaho, hum use shabdon me frame kar sakte hain."
       );
   }
 }
@@ -162,55 +171,74 @@ function guidingReply(theme: Theme) {
 export function buildAIReply(
   userText: string,
   memory: Memory
-): { reply: string; nextMemory: Memory } {
+): { reply: string; nextMemory: Memory; typingDelay: number } {
+
   const cleaned = userText.trim().toLowerCase();
+
+  /* 🧠 minimal response handling */
+  if (isMinimalResponse(cleaned)) {
+    return {
+      reply: followUpQuestion(memory.lastTheme ?? "unknown"),
+      nextMemory: { ...memory },
+      typingDelay: 600,
+    };
+  }
+
+  /* 🤫 silence handling */
+  if (!cleaned) {
+    const level: SilenceLevel =
+      memory.silenceCount >= 1 ? "long" : "short";
+
+    return {
+      reply: silenceReply(level),
+      nextMemory: {
+        ...memory,
+        silenceCount: memory.silenceCount + 1,
+      },
+      typingDelay: 1200,
+    };
+  }
+
   const theme = detectTheme(cleaned);
   const intensity = detectIntensity(cleaned);
 
   const repeated =
-    memory.lastTheme === theme ? memory.repeatedThemeCount + 1 : 0;
+    memory.lastTheme === theme
+      ? memory.repeatedThemeCount + 1
+      : 0;
 
-  const stage = decideStage(memory, repeated, cleaned);
+  let stage = decideStage(memory, repeated, cleaned);
+
+  const nextMemory: Memory = {
+    lastTheme: theme,
+    repeatedThemeCount: repeated,
+    stage,
+    emotionalIntensity: intensity,
+    silenceCount: 0,
+    longTermNotes:
+      repeated >= 2 && theme !== "unknown"
+        ? Array.from(new Set([...memory.longTermNotes, theme]))
+        : memory.longTermNotes,
+  };
 
   let reply = "";
 
-if (stage === "greeting") {
-  reply = "Hi 🙂 aap jo bhi share karna chaaho, main sun raha hoon.";
-}
+  if (stage === "greeting") {
+    reply = "Hi 🙂 aap jo bhi share karna chaho, main sun raha hoon.";
+  } else if (stage === "listening") {
+    reply = listeningReply(intensity);
+  } else if (stage === "reflecting") {
+    reply =
+      reflectingReply(theme) +
+      "\n\n" +
+      followUpQuestion(theme);
+  } else {
+    reply = guidingReply(theme);
+  }
 
-else if (stage === "listening") {
-  reply = listeningReply(intensity);
-}
+  /* 🧘 emotion-based typing delay */
+  const typingDelay =
+    intensity === "high" ? 1800 : intensity === "medium" ? 1200 : 700;
 
-else if (stage === "reflecting") {
-  reply =
-    reflectingReply(theme) +
-    "\n\n" +
-    followUpQuestion(theme); // 👈 SMART FOLLOW-UP
-}
-
-else {
-  reply = guidingReply(theme);
-}
-
-const silenceCount =
-  cleaned.length === 0
-    ? memory.silenceCount + 1
-    : 0;
-
-
- const nextMemory: Memory = {
-  lastTheme: theme,
-  repeatedThemeCount: repeated,
-  stage,
-  emotionalIntensity: intensity,
-  longTermNotes:
-    repeated >= 2 && theme !== "unknown"
-      ? Array.from(new Set([...memory.longTermNotes, theme]))
-      : memory.longTermNotes,
-  silenceCount,
-};
-
-
-  return { reply, nextMemory };
+  return { reply, nextMemory, typingDelay };
 }
