@@ -41,6 +41,24 @@ const [sessionId] = useState(() => {
   }
   return "";
 });
+const [profile, setProfile] = useState<any>(null);
+const guideAvatar = "/avatars/guide.png"; // ek simple neutral icon
+
+useEffect(() => {
+  const stored = localStorage.getItem("relationship_profile");
+  if (stored) {
+    setProfile(JSON.parse(stored));
+  }
+}, []);
+const userAvatar =
+  profile?.userGender === "female"
+    ? "/avatars/female.png"
+    : "/avatars/male.png";
+
+const partnerText =
+  profile?.partnerGender === "female"
+    ? "Talking about your female partner"
+    : "Talking about your male partner";
 
   /* ---------------- Fade In ---------------- */
 useEffect(() => {
@@ -369,10 +387,27 @@ fetch("/api/soulverse/notify", {
       }`}
     >
       {/* Header */}
-      <div className="border-b border-white/10 px-4 py-3">
-        <h1 className="text-base font-medium">SoulVerse</h1>
-        <p className="text-xs text-white/60">A one-on-one conversation</p>
-      </div>
+      
+      <div className="border-b border-white/10 px-4 py-3 flex items-center gap-3">
+  {/* Avatar */}
+  {profile && (
+    <img
+      src={userAvatar}
+      alt="User avatar"
+      className="w-10 h-10 rounded-full bg-white/10"
+    />
+  )}
+
+  {/* Text */}
+  <div>
+    <h1 className="text-sm font-medium">
+      {profile?.userName || "SoulVerse"}
+    </h1>
+    <p className="text-xs text-white/60">
+      {profile ? partnerText : "A one-on-one conversation"}
+    </p>
+  </div>
+</div>
 
       {/* Voice Only */}
       {voiceOnly && (
@@ -405,19 +440,41 @@ fetch("/api/soulverse/notify", {
           {!isReady && (
             <p className="text-sm text-white/50">Taking a moment…</p>
           )}
+console.log("Rendering message", msg.from);
 
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${
-                msg.from === "user"
-                  ? "ml-auto bg-indigo-600"
-                  : "mr-auto bg-white/10"
-              }`}
-            >
-              {msg.text}
-            </div>
-          ))}
+
+{messages.map((msg, i) => (
+  <div
+    key={i}
+    className={`flex items-end gap-2 ${
+      msg.from === "user" ? "justify-end" : "justify-start"
+    }`}
+  >
+    {msg.from === "guide" && (
+      <img
+        src="/avatars/guide.png"
+        className="w-7 h-7 rounded-full border border-black"
+      />
+    )}
+
+    <div
+      className={`max-w-[70%] rounded-2xl px-4 py-2 text-sm ${
+        msg.from === "user"
+          ? "bg-black text-white"
+          : "bg-white text-black"
+      }`}
+    >
+      {msg.text}
+    </div>
+
+    {msg.from === "user" && (
+      <img
+        src="/avatars/male.png"
+        className="w-7 h-7 rounded-full border border-red-500"
+      />
+    )}
+  </div>
+))}
 
           {isTyping && (
             <div className="mr-auto text-xs text-white/40">
