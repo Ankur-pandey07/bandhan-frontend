@@ -1,5 +1,6 @@
-import ProfileScreen from "./ProfileScreen";
+
+import ProfileHome from "./ProfileHome";
 
 export default function Page() {
-  return <ProfileScreen />;
+  return <ProfileHome />;
 }
