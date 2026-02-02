@@ -1,13 +1,31 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import ProfileHeader from "./ProfileHeader";
 import FeatureCardsRow from "./FeatureCardsRow";
 
 export default function ProfileHome() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/auth/me", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data.user);
+      })
+      .catch(() => {
+        window.location.href = "/login";
+      });
+  }, []);
+
+  if (!user) return null;
+
   return (
     <div className="pb-24">
       {/* HEADER */}
-      <ProfileHeader />
+      <ProfileHeader user={user} />
 
       {/* FEATURE CARDS */}
       <FeatureCardsRow />
@@ -25,9 +43,9 @@ export default function ProfileHome() {
           <p className="text-xs uppercase tracking-widest text-pink-400/80 mb-2">
             About me
           </p>
+
           <p className="text-sm text-gray-300 leading-relaxed">
-            Curious mind, math enthusiast 📐  
-            Love deep conversations, night walks and meaningful connections.
+            {user.bio || "Tell something about yourself ✨"}
           </p>
         </div>
       </div>
@@ -39,15 +57,10 @@ export default function ProfileHome() {
         </p>
 
         <div className="flex flex-wrap gap-3">
-          {[
-            "Travel ✈️",
-            "Music 🎧",
-            "Gym 💪",
-            "Tech 💻",
-            "Photography 📸",
-            "Coffee ☕",
-            "Night drives 🌙",
-          ].map((interest) => (
+          {(user.interests && user.interests.length > 0
+            ? user.interests
+            : ["Add interests"]
+          ).map((interest: string) => (
             <span
               key={interest}
               className="
@@ -64,6 +77,36 @@ export default function ProfileHome() {
           ))}
         </div>
       </div>
+
+      {/* 🔐 ADMIN EXTRA SECTION */}
+      {user.role === "admin" && (
+        <div className="px-4 mt-8">
+          <div
+            className="
+              rounded-2xl p-4
+              bg-[#140a0a]
+              border border-pink-500/30
+            "
+          >
+            <p className="text-xs uppercase tracking-widest text-pink-400 mb-3">
+              Admin Tools
+            </p>
+
+            <button
+              onClick={() => (window.location.href = "/admin/dashboard")}
+              className="
+                w-full py-3 rounded-xl
+                bg-pink-500
+                text-white font-semibold
+                hover:bg-pink-600
+                transition
+              "
+            >
+              Go to Admin Panel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

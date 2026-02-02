@@ -124,34 +124,26 @@ audioRef.current?.play().catch(() => {});
 
 const sendSwipe = async (action: "like" | "skip" | "superlike") => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/swipe`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          targetUserId: userProfile.id,
-          action,
-        }),
-      }
-    );
+    const userId = localStorage.getItem("userId");
 
-    const data = await res.json();
+    const res = await fetch("http://localhost:5000/api/swipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+     body: JSON.stringify({
+  action,
+  targetUserId: userProfile.id, // 👈 backend expects THIS
+}),
 
-    if (data.match) {
-      setShowMatch(true);
+    });
+
+    if (!res.ok) {
+      throw new Error("Swipe failed");
     }
-
-    nextMedia(); // ✅ yahin hona chahiye
-
   } catch (err) {
-    console.error("Swipe failed", err);
+    console.error("Swipe error:", err);
   }
 };
-
-
-   
 
   /* ================= MEDIA NAV ================= */
   const nextMedia = () => {

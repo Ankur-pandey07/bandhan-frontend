@@ -2,9 +2,33 @@
 
 import { useRouter } from "next/navigation";
 import ProfileCompletionRing from "./ProfileCompletionRing";
+import { useEffect, useState } from "react";
 
 export default function ProfileHeader() {
   const router = useRouter();
+const [user, setUser] = useState<any>(null);
+
+useEffect(() => {
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+  credentials: "include",
+})
+
+    .then((res) => {
+      if (!res.ok) throw new Error("Not logged in");
+      return res.json();
+    })
+    .then((data) => {
+      setUser(data.user);
+    })
+    .catch(() => {
+      router.push("/login");
+    });
+}, [router]);
+
+if (!user) {
+  return null; // ya loading skeleton
+}
+
 
   return (
     <div className="relative">
@@ -54,38 +78,46 @@ export default function ProfileHeader() {
         </div>
 
         {/* info */}
-        <div className="p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
-              Ankur, 21
-            </h2>
+       <div className="p-4 space-y-2">
+  <div className="flex items-center justify-between">
+    <h2 className="text-lg font-semibold">
+      {user?.role === "admin"
+        ? "Admin"
+        : user?.name || "User"}
+    </h2>
 
-            {/* COMPLETION RING (REPLACED TEXT) */}
-            <div className="flex items-center gap-2">
-              <ProfileCompletionRing percent={85} />
-              <span className="text-xs text-pink-400 font-medium">
-                Complete
-              </span>
-            </div>
-          </div>
+    <div className="flex items-center gap-2">
+      <ProfileCompletionRing percent={85} />
+      <span className="text-xs text-pink-400 font-medium">
+        Complete
+      </span>
+    </div>
+  </div>
 
-          <p className="text-sm text-gray-400">
-            Math Student • BTech • Looking for something meaningful
-          </p>
+  <p className="text-sm text-gray-400">
+    {user?.email}
+  </p>
 
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard/profile/edit")}
-            className="
-              mt-3 w-full py-2.5 rounded-full
-              bg-gradient-to-r from-pink-500 to-pink-600
-              text-black font-semibold
-              hover:opacity-90 transition
-            "
-          >
-            Edit Profile
-          </button>
-        </div>
+  {user?.role === "admin" && (
+    <span className="inline-block text-xs px-3 py-1 rounded-full bg-pink-500 text-black">
+      Admin Account
+    </span>
+  )}
+
+  <button
+    type="button"
+    onClick={() => router.push("/dashboard/profile/edit")}
+    className="
+      mt-3 w-full py-2.5 rounded-full
+      bg-gradient-to-r from-pink-500 to-pink-600
+      text-black font-semibold
+      hover:opacity-90 transition
+    "
+  >
+    Edit Profile
+  </button>
+</div>
+
       </div>
     </div>
   );

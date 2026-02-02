@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PhotoGrid from "./PhotoGrid";
 import GenderSheet from "./GenderSheet";
 import RelationshipSheet from "./RelationshipSheet";
@@ -50,9 +50,7 @@ type ProfileData = {
   hideAge?: boolean;
   hideDistance?: boolean;
 };
-useEffect(() => {
-  localStorage.setItem("profileData", JSON.stringify(profileData));
-}, [profileData]);
+
 
 export default function EditProfileScreen({
   data,
@@ -99,6 +97,9 @@ export default function EditProfileScreen({
 
   /* ✅ SAFE: full data passed */
   const completion = calculateProfileCompletion(data);
+useEffect(() => {
+  localStorage.setItem("profileData", JSON.stringify(data));
+}, [data]);
 
   return (
     <div className="min-h-screen bg-black text-white">

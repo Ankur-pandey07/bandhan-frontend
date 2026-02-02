@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@use-gesture/react": "^10.3.1",
+    "bcryptjs": "^3.0.3",
     "framer-motion": "^12.23.26",
-    "mongoose": "^9.1.5",
     "lucide-react": "^0.562.0",
+    "mongoose": "^9.1.5",
     "next": "16.0.10",
     "next-auth": "^4.24.13",
     "react": "19.2.1",

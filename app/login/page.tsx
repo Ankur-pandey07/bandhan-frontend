@@ -33,29 +33,38 @@ export default function LoginPage() {
   }, [mounted]);
 
   if (!mounted) return null;
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      }
-    );
-
-    if (!res.ok) {
-      alert("Login failed");
-      return;
+  const res = await fetch(
+    "http://localhost:5000/api/auth/login",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
     }
+  );
 
-    const data = await res.json();
-    localStorage.setItem("userId", data.user._id);
-    window.location.href = "/dashboard";
-  };
+  if (!res.ok) {
+    alert("Login failed");
+    return;
+  }
+
+  const data = await res.json();
+
+  // 👇 SAME AS PEHLE
+  localStorage.setItem("userId", data.user._id);
+
+  // Agar backend role bhej raha hai (optional)
+  if (data.user.role) {
+    localStorage.setItem("userRole", data.user.role);
+  }
+
+  // 👇 SAME REDIRECT AS BEFORE
+  window.location.href = "/dashboard";
+};
+
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden">

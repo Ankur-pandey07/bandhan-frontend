@@ -1,67 +1,99 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, models, model } from "mongoose";
 
-const MessageSchema = new mongoose.Schema({
-  role: {
-    type: String,
-    enum: ["user", "system"],
-    required: true,
+/* ===== MESSAGE SUB-SCHEMA ===== */
+const MessageSchema = new Schema(
+  {
+    role: {
+      type: String,
+      enum: ["user", "system"],
+      required: true,
+    },
+
+    text: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    phase: {
+      type: Number,
+      enum: [1, 2], // 1 = AI onboarding, 2 = Human takeover
+      required: true,
+    },
+
+    sentBy: {
+      type: String,
+      enum: ["ai", "admin"],
+      required: false, // user messages won't have this
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  text: String,
+  { _id: false }
+);
+
+/* ===== MAIN CHAT SCHEMA ===== */
+const RelationshipChatSchema = new Schema({
+  userId: {
+    type: String,
+    required: true,
+    index: true,
+    unique: true,
+  },
+
+  /* 🔒 CHAT PHASE (SOURCE OF TRUTH) */
+  phase: {
+    type: Number,
+    enum: [1, 2],
+    default: 1, // Phase-1 onboarding
+  },
+
+  messages: {
+    type: [MessageSchema],
+    default: [],
+  },
+
+  /* ===== OPTIONAL SYSTEM DATA ===== */
+  themeStats: {
+    type: Object,
+    default: {},
+  },
+
+  memory: {
+    type: Object,
+    default: {},
+  },
+
+  /* ===== AUDIT ===== */
   createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+
+  lastActiveAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const RelationshipChatSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+/* ===== HARD SAFETY VALIDATION ===== */
+RelationshipChatSchema.pre("save", function (next) {
+  if (this.phase === 2) {
+    const hasAIMessage = this.messages.some(
+      (msg: any) => msg.sentBy === "ai"
+    );
 
-    profile: {
-      yourName: String,
-      partnerName: String,
-      yourDOB: String,
-      partnerDOB: String,
-      yourPlace: String,
-      partnerPlace: String,
-    },
+    if (hasAIMessage) {
+      return next(
+        new Error("AI messages are not allowed after Phase-1")
+      );
+    }
+  }
+  next();
+});
 
-    profileConfirmed: {
-      type: Boolean,
-      default: false,
-    },
-
-    messages: [MessageSchema],
-
-    themeStats: {
-      communication: { type: Number, default: 0 },
-      trust: { type: Number, default: 0 },
-      distance: { type: Number, default: 0 },
-      conflict: { type: Number, default: 0 },
-      emotion: { type: Number, default: 0 },
-      unknown: { type: Number, default: 0 },
-    },
-
-    memory: {
-      lastTheme: String,
-      followUpAsked: Boolean,
-    },
-
-    summary: String,
-
-    lastActiveAt: Date,
-
-    isPremium: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  { timestamps: true }
-);
-
-export default mongoose.models.RelationshipChat ||
-  mongoose.model("RelationshipChat", RelationshipChatSchema);
+export default models.RelationshipChat ||
+  model("RelationshipChat", RelationshipChatSchema);
